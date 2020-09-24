@@ -2,8 +2,7 @@ import yaml
 from pprint import pprint
 import shutil
 import os
-import pkgutil
-import pip._internal.operations.freeze
+import json
 import toml
 
 class BuildSamTemplate:
@@ -12,16 +11,20 @@ class BuildSamTemplate:
     description = None
 
     def _collect_variables(self):
-        if os.path.isfile(f"{os.getcwd()}/sam_vars.py"):
-            import sam_vars
-            self.project_name = sam_vars.project_name
-            self.description = sam_vars.description
+        # TODO this would be better as a json file
+
+        if os.path.isfile(f"{os.getcwd()}/sam_vars.json"):
+            with open(f"{os.getcwd()}/sam_vars.json", "r") as read_file:
+                data = json.load(read_file)
+                self.project_name = data["project_name"]
+                self.description = data["description"]
         else:
             self.project_name = input("Name of lambda project folder")
             self.description = input("what is the Description")
-            with open('sam_vars.py', 'w') as file:
-                file.writelines(f"project_name = '{self.project_name}'\n"
-                                f"description = '{self.description}'")
+            with open(f"{os.getcwd()}/sam_vars.json",  "w") as write_file:
+                data = {"project_name": f"'{self.project_name}'\n",
+                        "description": f"'{self.description}'"}
+                json.dump(data, write_file)
 
     def _lambda_function_root_folder(self):
         # Create lambda function root project folder.
