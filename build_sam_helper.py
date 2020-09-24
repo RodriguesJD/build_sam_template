@@ -12,7 +12,7 @@ class BuildSamTemplate:
     description = None
 
     def _collect_variables(self):
-        if os.path.isfile("sam_vars.py"):
+        if os.path.isfile(f"{os.getcwd()}/sam_vars.py"):
             import sam_vars
             self.project_name = sam_vars.project_name
             self.description = sam_vars.description
