@@ -2,6 +2,9 @@ import yaml
 from pprint import pprint
 import shutil
 import os
+import pkgutil
+import pip._internal.operations.freeze
+
 
 project_name = input("Name of lambda project folder")
 
@@ -51,6 +54,14 @@ else:
 
 with open(f"{project_name}/__init__.py", 'w') as fp:
     pass
+
+with open(f"{project_name}/requirements.txt", 'w') as fp:
+    modules = pip._internal.operations.freeze.get_installed_distributions()
+    for module in modules:
+        if module.key == "pip":
+            pass
+        else:
+            fp.write(f"{module.key}\n")
 
 shutil.copyfile('template.yaml', f"{project_name}/template.yaml")
 
