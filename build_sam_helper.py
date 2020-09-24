@@ -127,6 +127,8 @@ class BuildSamTemplate:
             for dependency in dependencies:
                 if dependency == "python":
                     pass
+                elif dependency == "aws-sam-cli":
+                    pass
                 else:
                     fp.write(f"{dependency}\n")
 
