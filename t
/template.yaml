@@ -1,18 +1,24 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: test
+Description: t
 Globals:
   Function:
     Timeout: 3
 Resources:
-  TFunction:
-    Properties:
-      CodeUri: t/
+  ? 'T
+
+    Function'
+  : Properties:
+      CodeUri: 't
+
+        /'
       Events:
         HelloWorld:
           Properties:
             Description: Example schedule
             Enabled: true
-            Name: t-schedule
+            Name: 't
+
+              -schedule'
             Schedule: rate(5 minutes)
           Type: Schedule
       Handler: app.lambda_handler

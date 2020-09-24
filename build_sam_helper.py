@@ -22,8 +22,8 @@ class BuildSamTemplate:
             self.project_name = input("Name of lambda project folder")
             self.description = input("what is the Description")
             with open(f"{os.getcwd()}/sam_vars.json",  "w") as write_file:
-                data = {"project_name": f"'{self.project_name}'\n",
-                        "description": f"'{self.description}'"}
+                data = {"project_name": f"{self.project_name}\n",
+                        "description": f"{self.description}"}
                 json.dump(data, write_file)
 
     def _lambda_function_root_folder(self):
@@ -68,10 +68,8 @@ class BuildSamTemplate:
                      }
                      }
 
-        with open('template.yaml', 'w') as file:
+        with open(f"{self.project_name}/template.yaml", 'w') as file:
             documents = yaml.dump(dict_file, file)
-
-        shutil.copyfile('template.yaml', f"{self.project_name}/template.yaml")
 
     def _lambda_function_child_folder(self):
         # Create lambda function child folder.
