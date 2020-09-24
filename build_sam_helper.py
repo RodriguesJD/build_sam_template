@@ -57,8 +57,22 @@ if os.path.isdir(f"{project_name}/{project_name}"):
 else:
     os.mkdir(f"{project_name}/{project_name}")
 
-with open(f"{project_name}/__init__.py", 'w') as fp:
+if os.path.isfile(f"{project_name}/__init__.py"):
     pass
+else:
+    with open(f"{project_name}/__init__.py", 'w') as fp:
+        pass
+
+if os.path.isdir(f"{project_name}/{project_name}"):
+    pass
+else:
+    os.mkdir(f"{project_name}/{project_name}")
+
+if os.path.isfile(f"{project_name}/{project_name}/__init__.py"):
+    pass
+else:
+    with open(f"{project_name}/{project_name}/__init__.py", 'w') as fp:
+        pass
 
 with open(f"{project_name}/{project_name}/requirements.txt", 'w') as fp:
     modules = pip._internal.operations.freeze.get_installed_distributions()
