@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: t
+Description: testing description
 Globals:
   Function:
     Timeout: 3

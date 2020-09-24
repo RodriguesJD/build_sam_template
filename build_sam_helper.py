@@ -7,19 +7,54 @@ import pip._internal.operations.freeze
 
 
 class BuildSamTemplate:
-    project_name = input("Name of lambda project folder")
 
+    project_name = None
+    description = None
     # TODO look for sam_vars.py for configuration vars
 
-    @staticmethod
-    def description():
-        des = input("what is the Description")
-        return des
+    def _collect_variables(self):
+        if os.path.isfile("sam_vars.py"):
+            import sam_vars
+            self.project_name = sam_vars.project_name
+            self.description = sam_vars.description
+        else:
+            self.project_name = input("Name of lambda project folder")
+            self.description = input("what is the Description")
+            with open('sam_vars.py', 'w') as file:
+                file.writelines(f"project_name = {self.project_name}\n"
+                                f"description = {self.description}")
+
+    def lambda_function_root_folder(self):
+        # Create lambda function root project folder.
+        if os.path.isdir(self.project_name):
+            pass
+        else:
+            os.mkdir(self.project_name)
+        # Create __init__.py so python sees project root as a package.
+        if os.path.isfile(f"{self.project_name}/__init__.py"):
+            pass
+        else:
+            with open(f"{self.project_name}/__init__.py", 'w') as fp:
+                pass
+
+    def lambda_function_child_folder(self):
+        # Create lambda function child folder.
+        if os.path.isdir(f"{self.project_name}/{self.project_name}"):
+            pass
+        else:
+            os.mkdir(f"{self.project_name}/{self.project_name}")
+
+        # Create __init__.py so python sees child_folder as a package.
+        if os.path.isfile(f"{self.project_name}/{self.project_name}/__init__.py"):
+            pass
+        else:
+            with open(f"{self.project_name}/{self.project_name}/__init__.py", 'w') as fp:
+                pass
 
     def template_dict(self):
         dict_file = {'AWSTemplateFormatVersion': '2010-09-09',
                      'Transform': 'AWS::Serverless-2016-10-31',
-                     'Description': self.description(),
+                     'Description': self.description,
                      'Globals': {
                          'Function': {
                              'Timeout': 3}},
@@ -48,33 +83,6 @@ class BuildSamTemplate:
         with open('template.yaml', 'w') as file:
             documents = yaml.dump(dict_file, file)
 
-
-        if os.path.isdir(self.project_name):
-            pass
-        else:
-            os.mkdir(self.project_name)
-
-        if os.path.isdir(f"{self.project_name}/{self.project_name}"):
-            pass
-        else:
-            os.mkdir(f"{self.project_name}/{self.project_name}")
-
-        if os.path.isfile(f"{self.project_name}/__init__.py"):
-            pass
-        else:
-            with open(f"{self.project_name}/__init__.py", 'w') as fp:
-                pass
-
-        if os.path.isdir(f"{self.project_name}/{self.project_name}"):
-            pass
-        else:
-            os.mkdir(f"{self.project_name}/{self.project_name}")
-
-        if os.path.isfile(f"{self.project_name}/{self.project_name}/__init__.py"):
-            pass
-        else:
-            with open(f"{self.project_name}/{self.project_name}/__init__.py", 'w') as fp:
-                pass
 
         with open(f"{self.project_name}/{self.project_name}/requirements.txt", 'w') as fp:
             # TODO try using .toml file to extract this data
@@ -128,6 +136,9 @@ class BuildSamTemplate:
         print(f"cp app.py {self.project_name}/app.py")
 
     def create(self):
+        self._collect_variables()
+        self.lambda_function_root_folder()
+        self.lambda_function_child_folder()
         self.template_dict()
 
 
