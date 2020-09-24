@@ -4,7 +4,7 @@ import shutil
 import os
 import pkgutil
 import pip._internal.operations.freeze
-
+import toml
 
 class BuildSamTemplate:
 
@@ -122,15 +122,12 @@ class BuildSamTemplate:
 
     def _create_requirements_file(self):
         with open(f"{self.project_name}/{self.project_name}/requirements.txt", 'w') as fp:
-            # TODO try using .toml file to extract this data
-            modules = pip._internal.operations.freeze.get_installed_distributions()
-            ignore_these_packages = ["wcwidth","six", "pytest", "pyparsing", "py", "pluggy", "packaging", "more-itertools",
-                                     "attrs", "setuptools", "pip"]
-            for module in modules:
-                if module.key in ignore_these_packages:
+            dependencies = list(toml.load("pyproject.toml")['tool']['poetry']['dependencies'].keys())
+            for dependency in dependencies:
+                if dependency == "python":
                     pass
                 else:
-                    fp.write(f"{module.key}\n")
+                    fp.write(f"{dependency}\n")
 
     def create(self):
         self._collect_variables()
