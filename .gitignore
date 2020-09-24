@@ -7,3 +7,4 @@ playground.py
 .DS_Store
 *.json
 t
+sam_vars.py
