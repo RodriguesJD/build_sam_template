@@ -10,7 +10,6 @@ class BuildSamTemplate:
 
     project_name = None
     description = None
-    # TODO look for sam_vars.py for configuration vars
 
     def _collect_variables(self):
         if os.path.isfile("sam_vars.py"):
@@ -24,7 +23,7 @@ class BuildSamTemplate:
                 file.writelines(f"project_name = {self.project_name}\n"
                                 f"description = {self.description}")
 
-    def lambda_function_root_folder(self):
+    def _lambda_function_root_folder(self):
         # Create lambda function root project folder.
         if os.path.isdir(self.project_name):
             pass
@@ -37,21 +36,7 @@ class BuildSamTemplate:
             with open(f"{self.project_name}/__init__.py", 'w') as fp:
                 pass
 
-    def lambda_function_child_folder(self):
-        # Create lambda function child folder.
-        if os.path.isdir(f"{self.project_name}/{self.project_name}"):
-            pass
-        else:
-            os.mkdir(f"{self.project_name}/{self.project_name}")
-
-        # Create __init__.py so python sees child_folder as a package.
-        if os.path.isfile(f"{self.project_name}/{self.project_name}/__init__.py"):
-            pass
-        else:
-            with open(f"{self.project_name}/{self.project_name}/__init__.py", 'w') as fp:
-                pass
-
-    def template_dict(self):
+    def _create_template_file(self):
         dict_file = {'AWSTemplateFormatVersion': '2010-09-09',
                      'Transform': 'AWS::Serverless-2016-10-31',
                      'Description': self.description,
@@ -83,7 +68,59 @@ class BuildSamTemplate:
         with open('template.yaml', 'w') as file:
             documents = yaml.dump(dict_file, file)
 
+        shutil.copyfile('template.yaml', f"{self.project_name}/template.yaml")
 
+    def _lambda_function_child_folder(self):
+        # Create lambda function child folder.
+        if os.path.isdir(f"{self.project_name}/{self.project_name}"):
+            pass
+        else:
+            os.mkdir(f"{self.project_name}/{self.project_name}")
+
+        # Create __init__.py so python sees child_folder as a package.
+        if os.path.isfile(f"{self.project_name}/{self.project_name}/__init__.py"):
+            pass
+        else:
+            with open(f"{self.project_name}/{self.project_name}/__init__.py", 'w') as fp:
+                pass
+
+    def _create_app_file(self):
+        with open(f"{self.project_name}/{self.project_name}/app.py", 'w') as fp:
+            text = '''import json
+
+
+        def lambda_handler(event, context):
+            """Sample pure Lambda function
+
+            Parameters
+            ----------
+            event: dict, required
+                API Gateway Lambda Proxy Input Format
+
+                Event doc: https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html#api-gateway-simple-proxy-for-lambda-input-format
+
+            context: object, required
+                Lambda Context runtime methods and attributes
+
+                Context doc: https://docs.aws.amazon.com/lambda/latest/dg/python-context-object.html
+
+            Returns
+            ------
+            API Gateway Lambda Proxy Output Format: dict
+
+                Return doc: https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html
+            """
+
+            return {
+                "statusCode": 200,
+                "body": json.dumps({
+                    "message": "hello world",
+                }),
+            }
+        '''
+            fp.writelines(text)
+
+    def _create_requirements_file(self):
         with open(f"{self.project_name}/{self.project_name}/requirements.txt", 'w') as fp:
             # TODO try using .toml file to extract this data
             modules = pip._internal.operations.freeze.get_installed_distributions()
@@ -95,51 +132,17 @@ class BuildSamTemplate:
                 else:
                     fp.write(f"{module.key}\n")
 
-        with open(f"{self.project_name}/{self.project_name}/app.py", 'w') as fp:
-            text = '''import json
-        
-        
-        def lambda_handler(event, context):
-            """Sample pure Lambda function
-        
-            Parameters
-            ----------
-            event: dict, required
-                API Gateway Lambda Proxy Input Format
-        
-                Event doc: https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html#api-gateway-simple-proxy-for-lambda-input-format
-        
-            context: object, required
-                Lambda Context runtime methods and attributes
-        
-                Context doc: https://docs.aws.amazon.com/lambda/latest/dg/python-context-object.html
-        
-            Returns
-            ------
-            API Gateway Lambda Proxy Output Format: dict
-        
-                Return doc: https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html
-            """
-        
-            return {
-                "statusCode": 200,
-                "body": json.dumps({
-                    "message": "hello world",
-                }),
-            }
-        '''
-            fp.writelines(text)
-
-        shutil.copyfile('template.yaml', f"{self.project_name}/template.yaml")
-
-        print(f"mkdir {self.project_name}")
-        print(f"cp app.py {self.project_name}/app.py")
-
     def create(self):
         self._collect_variables()
-        self.lambda_function_root_folder()
-        self.lambda_function_child_folder()
-        self.template_dict()
+
+        self._lambda_function_root_folder()
+        self._create_template_file()
+
+        self._lambda_function_child_folder()
+        self._create_app_file()
+        self._create_requirements_file()
+        # TODO test that the template file passes samcli command?
+        # TODo create sam_var.py if one doesnt excist
 
 
 if __name__ == '__main__':
