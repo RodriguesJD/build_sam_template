@@ -4,26 +4,31 @@ import shutil
 import os
 import json
 import toml
+import git
 
 class BuildSamTemplate:
 
     project_name = None
     description = None
+    git_repos = None
 
     def _collect_variables(self):
-        # TODO this would be better as a json file
-
         if os.path.isfile(f"{os.getcwd()}/sam_vars.json"):
             with open(f"{os.getcwd()}/sam_vars.json", "r") as read_file:
                 data = json.load(read_file)
                 self.project_name = data["project_name"]
                 self.description = data["description"]
+                self.git_repos = data["repos"]
         else:
             self.project_name = input("Name of lambda project folder")
             self.description = input("what is the Description")
+            self.git_repos = input("What repos would you like to pull in").split(" ")
+
             with open(f"{os.getcwd()}/sam_vars.json",  "w") as write_file:
                 data = {"project_name": f"{self.project_name}\n",
-                        "description": f"{self.description}"}
+                        "description": f"{self.description}",
+                        "repos": self.git_repos}
+
                 json.dump(data, write_file)
 
     def _lambda_function_root_folder(self):
@@ -121,6 +126,13 @@ class BuildSamTemplate:
         '''
             fp.writelines(text)
 
+    def _pull_in_project(self):
+        for git_repo in self.git_repos:
+            try:
+                git.Git(f"{os.getcwd()}").clone(git_repo)
+            except git.GitCommandError as e:
+                print(e)
+
     def _create_requirements_file(self):
         with open(f"{self.project_name}/{self.project_name}/requirements.txt", 'w') as fp:
             dependencies = list(toml.load("pyproject.toml")['tool']['poetry']['dependencies'].keys())
@@ -140,9 +152,13 @@ class BuildSamTemplate:
 
         self._lambda_function_child_folder()
         self._create_app_file()
+        self._pull_in_project()
         self._create_requirements_file()
         # TODO test that the template file passes samcli command?
         # TODO add pull git project into child folder
+        #  import git
+        #  g = git.cmd.Git(git_dir)
+        #  g.pull()
 
 
 if __name__ == '__main__':

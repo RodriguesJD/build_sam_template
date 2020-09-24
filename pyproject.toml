@@ -8,6 +8,7 @@ authors = ["Jeremy Rodrigues <jrodrigues@ripple.com>"]
 python = "^3.8"
 pyyaml = "^5.3.1"
 toml = "^0.10.1"
+gitpython = "^3.1.8"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
