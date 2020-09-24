@@ -20,8 +20,8 @@ class BuildSamTemplate:
             self.project_name = input("Name of lambda project folder")
             self.description = input("what is the Description")
             with open('sam_vars.py', 'w') as file:
-                file.writelines(f"project_name = {self.project_name}\n"
-                                f"description = {self.description}")
+                file.writelines(f"project_name = '{self.project_name}'\n"
+                                f"description = '{self.description}'")
 
     def _lambda_function_root_folder(self):
         # Create lambda function root project folder.
@@ -142,7 +142,7 @@ class BuildSamTemplate:
         self._create_app_file()
         self._create_requirements_file()
         # TODO test that the template file passes samcli command?
-        # TODo create sam_var.py if one doesnt excist
+        # TODO add pull git project into child folder
 
 
 if __name__ == '__main__':
