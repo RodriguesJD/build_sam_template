@@ -6,4 +6,4 @@ venv
 playground.py
 .DS_Store
 *.json
-t/
+t

@@ -57,8 +57,10 @@ with open(f"{project_name}/__init__.py", 'w') as fp:
 
 with open(f"{project_name}/requirements.txt", 'w') as fp:
     modules = pip._internal.operations.freeze.get_installed_distributions()
+    ignore_these_packages = ["wcwidth","six", "pytest", "pyparsing", "py", "pluggy", "packaging", "more-itertools",
+                             "attrs", "setuptools", "pip"]
     for module in modules:
-        if module.key == "pip":
+        if module.key in ignore_these_packages:
             pass
         else:
             fp.write(f"{module.key}\n")
