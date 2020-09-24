@@ -1,5 +1,7 @@
 import yaml
 from pprint import pprint
+import shutil
+import os
 
 project_name = input("Name of lambda project folder")
 
@@ -40,6 +42,17 @@ dict_file = {'AWSTemplateFormatVersion': '2010-09-09',
 
 with open('template.yaml', 'w') as file:
     documents = yaml.dump(dict_file, file)
+
+
+if os.path.isdir(project_name):
+    pass
+else:
+    os.mkdir(project_name)
+
+with open(f"{project_name}/__init__.py", 'w') as fp:
+    pass
+
+shutil.copyfile('template.yaml', f"{project_name}/template.yaml")
 
 print(f"mkdir {project_name}")
 print(f"cp app.py {project_name}/app.py")
