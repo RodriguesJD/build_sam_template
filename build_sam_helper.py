@@ -25,7 +25,7 @@ class BuildSamTemplate:
             self.git_repos = input("What repos would you like to pull in").split(" ")
 
             with open(f"{os.getcwd()}/sam_vars.json",  "w") as write_file:
-                data = {"project_name": f"{self.project_name}\n",
+                data = {"project_name": f"{self.project_name}",
                         "description": f"{self.description}",
                         "repos": self.git_repos}
 
@@ -129,7 +129,7 @@ class BuildSamTemplate:
     def _pull_in_project(self):
         for git_repo in self.git_repos:
             try:
-                git.Git(f"{os.getcwd()}").clone(git_repo)
+                git.Git(f"{os.getcwd()}/{self.project_name}/{self.project_name}").clone(git_repo)
             except git.GitCommandError as e:
                 print(e)
 
@@ -155,10 +155,7 @@ class BuildSamTemplate:
         self._pull_in_project()
         self._create_requirements_file()
         # TODO test that the template file passes samcli command?
-        # TODO add pull git project into child folder
-        #  import git
-        #  g = git.cmd.Git(git_dir)
-        #  g.pull()
+
 
 
 if __name__ == '__main__':

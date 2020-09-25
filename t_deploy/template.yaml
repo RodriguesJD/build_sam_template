@@ -4,21 +4,15 @@ Globals:
   Function:
     Timeout: 3
 Resources:
-  ? 'T
-
-    Function'
-  : Properties:
-      CodeUri: 't
-
-        /'
+  TDeployFunction:
+    Properties:
+      CodeUri: t_deploy/
       Events:
         HelloWorld:
           Properties:
             Description: Example schedule
             Enabled: true
-            Name: 't
-
-              -schedule'
+            Name: t-deploy-schedule
             Schedule: rate(5 minutes)
           Type: Schedule
       Handler: app.lambda_handler
